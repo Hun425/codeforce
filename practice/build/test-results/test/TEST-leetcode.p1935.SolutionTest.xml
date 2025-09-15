@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="leetcode.p1935.SolutionTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2025-09-15T16:01:46.331Z" hostname="KIHUN" time="0.009">
-  <properties/>
-  <testcase name="testExample1()" classname="leetcode.p1935.SolutionTest" time="0.007"/>
-  <testcase name="testExample2()" classname="leetcode.p1935.SolutionTest" time="0.001"/>
-  <testcase name="testExample3()" classname="leetcode.p1935.SolutionTest" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
