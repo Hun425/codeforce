@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="codeforces.2025-09-16.a_cut_the_array.SolutionTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2025-09-15T16:01:46.296Z" hostname="KIHUN" time="0.015">
+  <properties/>
+  <testcase name="test case 1()" classname="codeforces.2025-09-16.a_cut_the_array.SolutionTest" time="0.011"/>
+  <testcase name="test case 2()" classname="codeforces.2025-09-16.a_cut_the_array.SolutionTest" time="0.001"/>
+  <testcase name="test case 3()" classname="codeforces.2025-09-16.a_cut_the_array.SolutionTest" time="0.0"/>
+  <testcase name="test case 4()" classname="codeforces.2025-09-16.a_cut_the_array.SolutionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
