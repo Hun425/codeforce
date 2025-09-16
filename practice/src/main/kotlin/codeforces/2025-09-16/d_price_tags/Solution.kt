@@ -1,74 +1,62 @@
 package codeforces.`2025-09-16`.d_price_tags
 
-import kotlin.math.*
+import kotlin.math.max
+import kotlin.math.min
 
 class Solution {
     fun solve(n: Int, y: Long, prices: IntArray): Long {
-        var maxIncome = Long.MIN_VALUE
+        val maxPrice = prices.maxOrNull() ?: 0
+        if (maxPrice == 0) {
+            return 0
+        }
 
-        // 의미있는 x값들을 더 간단하게 수집
-        val candidateXs = mutableSetOf<Int>()
-
-        // 각 가격에 대해 약수들을 기반으로 후보 x 생성
+        val counts = LongArray(maxPrice + 1)
         for (price in prices) {
-            for (x in 2..price + 1) {
-                candidateXs.add(x)
-            }
-            // price의 약수들도 추가
-            for (div in 1..minOf(price, 1000)) {
-                if (price % div == 0) {
-                    candidateXs.add(div + 1)
-                    if (div > 1) candidateXs.add(div)
+            counts[price]++
+        }
+
+        val prefixCounts = LongArray(maxPrice + 2)
+        for (i in 0..maxPrice) {
+            prefixCounts[i + 1] = prefixCounts[i] + counts[i]
+        }
+
+        var maxProfit = Long.MIN_VALUE
+
+        // x는 1보다 큰 정수. x가 maxPrice + 1보다 커지면 모든 새 가격은 1이 되므로 그 이상은 볼 필요가 없다.
+        for (x in 2..maxPrice + 1) {
+            var currentTotalValue = 0L
+            var tagsToPrint = 0L
+
+            // p는 새 가격(new price)
+            var p = 1
+            while (true) {
+                // 새 가격이 p가 되는 기존 가격의 범위: ( (p-1)*x, p*x ]
+                val startRange = (p - 1L) * x + 1
+                if (startRange > maxPrice) {
+                    break
                 }
+                val endRange = p.toLong() * x
+
+                // 누적 합 배열을 사용하여 해당 범위의 상품 개수를 O(1)에 계산
+                val numItems = prefixCounts[min(endRange, maxPrice.toLong()).toInt() + 1] - prefixCounts[startRange.toInt()]
+
+                if (numItems > 0) {
+                    // 새 가격의 총합
+                    currentTotalValue += p.toLong() * numItems
+                    // 재사용할 수 없는, 새로 인쇄해야 하는 가격표의 수
+                    val originalCountP = if (p <= maxPrice) counts[p] else 0
+                    tagsToPrint += max(0, numItems - originalCountP)
+                }
+                p++
+            }
+
+            val currentProfit = currentTotalValue - tagsToPrint * y
+            if (currentProfit > maxProfit) {
+                maxProfit = currentProfit
             }
         }
 
-        // 추가로 작은 x들도 확인
-        for (x in 2..100) {
-            candidateXs.add(x)
-        }
-
-        // 후보 x들에 대해서만 계산
-        for (x in candidateXs.filter { it >= 2 }) {
-            val income = calculateIncome(prices, x, y)
-            maxIncome = maxOf(maxIncome, income)
-        }
-
-        return maxIncome
-    }
-
-    private fun calculateIncome(prices: IntArray, x: Int, y: Long): Long {
-        // 새로운 가격들 계산 (올림)
-        val newPrices = IntArray(prices.size) { (prices[it] + x - 1) / x }
-
-        // 새로운 가격들의 합
-        val totalNewPrice = newPrices.sumOf { it.toLong() }
-
-        // 그리디하게 재사용 계산: 정렬 후 매칭
-        val originalSorted = prices.sorted().toMutableList()
-        val newSorted = newPrices.sorted().toMutableList()
-
-        var reusedCount = 0
-        var i = 0
-        var j = 0
-
-        while (i < originalSorted.size && j < newSorted.size) {
-            if (originalSorted[i] == newSorted[j]) {
-                reusedCount++
-                i++
-                j++
-            } else if (originalSorted[i] < newSorted[j]) {
-                i++
-            } else {
-                j++
-            }
-        }
-
-        // 인쇄해야 할 가격표 개수
-        val newTagsToPrint = prices.size - reusedCount
-
-        // 총 수익 = 새로운 가격들의 합 - 인쇄 비용
-        return totalNewPrice - (newTagsToPrint * y)
+        return maxProfit
     }
 }
 

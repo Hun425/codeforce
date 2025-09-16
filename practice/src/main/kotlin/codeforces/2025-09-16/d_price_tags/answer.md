@@ -1,126 +1,120 @@
-# D. Price Tags 풀이 과정
+# D. Price Tags 문제 풀이 해설
 
-## 문제 분석
+## 1. 문제 분석
 
-상점에서 세일을 진행할 때, 모든 가격을 x로 나눈 올림값으로 새로 책정하되, 기존 가격표를 재사용해서 인쇄 비용을 절약하려고 한다. 총 수익(새 가격들의 합 - 가격표 인쇄비용)을 최대화하는 x를 찾는 문제이다.
+이 문제는 총수익을 최대로 만드는 최적의 정수 계수 `x > 1`를 찾는 것입니다.
 
-**핵심 난점:**
-- x가 작으면: 새 가격들의 합은 크지만, 가격표 재사용률이 낮음
-- x가 크면: 새 가격들의 합은 작지만, 가격표 재사용률이 높을 수 있음
-- 단순한 그리디 접근법이 통하지 않음
+- **총수익** = (모든 상품의 새 가격 합) - (새로 인쇄한 가격표의 총비용)
+- **새 가격**: `ceil(기존 가격 / x)`
+- **가격표 재사용**: 특정 가격 `p`에 대해, 새 가격이 `p`인 상품의 수가 기존 가격이 `p`였던 상품의 수보다 많을 때만 그 차이만큼 새로 인쇄합니다.
 
-## 시도한 접근법들
+가장 큰 난관은 `x`의 범위가 정해져 있지 않다는 점입니다. 모든 `x`를 시험하는 것은 불가능해 보입니다.
 
-### 1차 시도: 완전 탐색 (시간초과)
+## 2. 핵심 아이디어 및 알고리즘 설계
+
+### 2.1. `x`의 탐색 범위 최적화
+
+`x`가 상품의 최대 가격(`C_max`)보다 커지면, 모든 상품의 새 가격은 `1`이 됩니다. `x`가 `C_max + 1`일 때와 `C_max + 2`일 때의 새 가격은 모두 `1`로 동일하므로, `x`를 `2`부터 `C_max + 1`까지만 검사하면 모든 가능한 경우를 확인할 수 있습니다.
+
+하지만 `C_max`는 최대 `2 * 10^5`이므로, `x`를 순회하며 매번 `n`개의 상품 가격을 다시 계산하는 `O(n * C_max)` 방식은 시간 초과입니다.
+
+### 2.2. 누적 합을 이용한 이익 계산 가속화
+
+`x`가 주어졌을 때, 총수익을 `O(n)`보다 빠르게 계산할 방법이 필요합니다.
+
+핵심은 **상품 중심이 아닌, 가격 중심으로 계산 방식을 전환**하는 것입니다.
+
+1.  **전처리 (가격 분포 계산)**
+    - `counts[v]`: 가격이 `v`인 상품의 개수를 저장하는 배열
+    - `prefixCounts[v]`: 가격이 `v` 이하인 상품의 누적 개수를 저장하는 배열 (`prefixCounts[i+1] = prefixCounts[i] + counts[i]`)
+
+    이 `prefixCounts` 배열을 사용하면, 특정 가격 범위 `(A, B]`에 속하는 상품의 개수를 `prefixCounts[B+1] - prefixCounts[A+1]` (인덱스 조정에 따라) 로 `O(1)`에 계산할 수 있습니다.
+
+2.  **효율적인 이익 계산**
+    - `x`를 `2`부터 `C_max + 1`까지 순회합니다.
+    - 각 `x`에 대해, 가능한 모든 **새 가격 `p`** (`1, 2, 3, ...`)를 기준으로 계산을 수행합니다.
+    - 새 가격이 `p`가 되는 기존 가격 `c`의 범위는 `p-1 < c / x <= p`, 즉 `(p-1) * x < c <= p * x` 입니다.
+    - `prefixCounts` 배열을 이용하면, 이 범위에 해당하는 상품 수(`numItems`)를 `O(1)`에 구할 수 있습니다.
+    - `numItems`를 구했다면,
+        - 새 가격의 합에 `p * numItems`를 더합니다.
+        - 새로 인쇄할 가격표 수는 `max(0, numItems - counts[p])` 입니다. (기존 가격이 `p`인 상품 수 `counts[p]` 만큼 재사용)
+    - 모든 `p`에 대해 이 과정을 반복하면, 해당 `x`의 총수익을 빠르게 계산할 수 있습니다.
+
+## 3. 시간 및 공간 복잡도 분석
+
+- **시간 복잡도**: `O(C_max * log(C_max))`
+    - 전처리 과정은 `O(C_max)` 입니다.
+    - 메인 루프는 `x`가 `2`부터 `C_max+1`까지 순회합니다.
+    - 내부 루프(새 가격 `p` 기준)는 약 `C_max / x` 번 반복됩니다.
+    - 따라서 총 연산량은 `Σ(C_max / x)` (x=2 to C_max+1) 이며, 이는 조화 급수(Harmonic series)의 형태로 근사적으로 `O(C_max * log(C_max))`가 됩니다.
+    - `C_max`가 `2 * 10^5`일 때, 이 방법은 시간 제한 내에 충분히 동작합니다.
+
+- **공간 복잡도**: `O(C_max)`
+    - `counts`와 `prefixCounts` 배열을 위해 `O(C_max)`의 공간이 필요하며, 이는 메모리 제한을 만족합니다.
+
+## 4. 최종 코드 구현 (Solution.kt)
+
 ```kotlin
-// x = 2부터 200,000까지 모든 경우 확인
-for (x in 2..200000) {
-    val income = calculateIncome(prices, x, y)
-    maxIncome = maxOf(maxIncome, income)
-}
-```
+package codeforces.`2025-09-16`.d_price_tags
 
-**문제점:**
-- 시간복잡도: O(200,000 × n log n) ≈ O(4×10^10) → 너무 느림
-- 2초 제한 내에 불가능
+import kotlin.math.max
+import kotlin.math.min
 
-### 2차 시도: 상한 축소
-```kotlin
-// x 상한을 max(max(prices), 500)로 제한
-val upperLimit = max(maxPrice, 500)
-for (x in 2..upperLimit) { ... }
-```
-
-**개선점:**
-- 시간복잡도를 O(500 × n log n)로 줄임
-- 하지만 여전히 일부 케이스에서 시간초과
-
-### 3차 시도: 의미있는 x만 선별
-**아이디어:** 모든 x를 확인하지 말고, ceil(price/x)가 변하는 중요한 지점들만 확인
-
-```kotlin
-// 각 가격에 대해 ceil(c/x)가 변하는 x값들 수집
-for (price in prices) {
-    for (newPrice in 1..price) {
-        // ceil(price/x) = newPrice가 되는 x의 범위 계산
-        val minX = if (newPrice == price) 1 else (price + newPrice) / (newPrice + 1) + 1
-        val maxX = (price + newPrice - 1) / newPrice
-        candidateXs.add(minX)
-        candidateXs.add(maxX)
-    }
-}
-```
-
-**문제점:**
-- 후보 x 생성 로직이 복잡하고 버그 발생
-- 여전히 많은 후보가 생성됨
-
-### 4차 시도: 단순화된 후보 선별
-```kotlin
-// 각 가격의 약수들과 작은 x들을 후보로 선택
-for (price in prices) {
-    for (x in 2..price + 1) candidateXs.add(x)
-    for (div in 1..minOf(price, 1000)) {
-        if (price % div == 0) {
-            candidateXs.add(div)
-            candidateXs.add(div + 1)
+class Solution {
+    fun solve(n: Int, y: Long, prices: IntArray): Long {
+        val maxPrice = prices.maxOrNull() ?: 0
+        if (maxPrice == 0) {
+            return 0
         }
+
+        // 1. 전처리: 가격별 개수 및 누적 합 계산
+        val counts = LongArray(maxPrice + 1)
+        for (price in prices) {
+            counts[price]++
+        }
+
+        val prefixCounts = LongArray(maxPrice + 2)
+        for (i in 0..maxPrice) {
+            prefixCounts[i + 1] = prefixCounts[i] + counts[i]
+        }
+
+        var maxProfit = Long.MIN_VALUE
+
+        // 2. x를 2부터 maxPrice + 1까지 순회하며 최적의 x 탐색
+        for (x in 2..maxPrice + 1) {
+            var currentTotalValue = 0L
+            var tagsToPrint = 0L
+
+            // 3. 새 가격 p를 기준으로 이익 계산
+            var p = 1
+            while (true) {
+                // 새 가격이 p가 되는 기존 가격의 범위: ( (p-1)*x, p*x ]
+                val startRange = (p - 1L) * x + 1
+                if (startRange > maxPrice) {
+                    break // 탐색 범위를 넘어서면 종료
+                }
+                val endRange = p.toLong() * x
+
+                // 누적 합 배열을 사용하여 해당 범위의 상품 개수를 O(1)에 계산
+                val numItems = prefixCounts[min(endRange, maxPrice.toLong()).toInt() + 1] - prefixCounts[startRange.toInt()]
+
+                if (numItems > 0) {
+                    // 새 가격의 총합
+                    currentTotalValue += p.toLong() * numItems
+                    // 재사용할 수 없는, 새로 인쇄해야 하는 가격표의 수
+                    val originalCountP = if (p <= maxPrice) counts[p] else 0
+                    tagsToPrint += max(0, numItems - originalCountP)
+                }
+                p++
+            }
+
+            val currentProfit = currentTotalValue - tagsToPrint * y
+            if (currentProfit > maxProfit) {
+                maxProfit = currentProfit
+            }
+        }
+
+        return maxProfit
     }
 }
-for (x in 2..100) candidateXs.add(x)
 ```
-
-**결과:**
-- 테스트 케이스는 통과하지만 여전히 시간초과
-
-## 핵심 알고리즘 구성 요소
-
-### 가격표 재사용 계산 (그리디)
-```kotlin
-val originalSorted = prices.sorted().toMutableList()
-val newSorted = newPrices.sorted().toMutableList()
-
-var reusedCount = 0
-var i = 0; var j = 0
-
-while (i < originalSorted.size && j < newSorted.size) {
-    if (originalSorted[i] == newSorted[j]) {
-        reusedCount++; i++; j++
-    } else if (originalSorted[i] < newSorted[j]) {
-        i++
-    } else {
-        j++
-    }
-}
-```
-
-### 수익 계산
-```kotlin
-val totalNewPrice = newPrices.sumOf { it.toLong() }
-val newTagsToPrint = prices.size - reusedCount
-return totalNewPrice - (newTagsToPrint * y)
-```
-
-## 시간 복잡도 분석
-
-### 최종 구현
-- **후보 x 개수**: 약 O(sum of prices) + O(divisors) + O(100)
-- **각 x에 대한 계산**: O(n log n) (정렬 때문)
-- **전체**: 최악의 경우 여전히 너무 클 수 있음
-
-## 미해결 문제점
-
-1. **근본적 시간복잡도 문제**: 아직도 너무 많은 x를 확인함
-2. **수학적 최적화 부족**: 최적 x의 특성을 충분히 활용하지 못함
-3. **가능한 개선 방향**:
-   - x의 상한을 더 작게 (예: sqrt(max_price))
-   - 수학적 성질 활용하여 후보 x를 더 효율적으로 선별
-   - 이진 탐색이나 삼분 탐색 적용 가능성 검토
-
-## 교훈
-
-1. **완전 탐색의 한계**: 브루트 포스만으로는 시간 제한을 맞추기 어려움
-2. **최적화의 중요성**: 후보 선별과 상한 설정이 핵심
-3. **수학적 통찰 필요**: 문제의 본질적 특성을 더 깊이 이해해야 함
-
-이 문제는 최적화와 수학적 분석이 더 필요한 고난도 문제였습니다.
