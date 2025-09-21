@@ -1,4 +1,4 @@
-package codeforces.`2024-09-20`.a_shortest_increasing_path
+package codeforces.`2025-09-20`.a_shortest_increasing_path
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

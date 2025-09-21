@@ -1,4 +1,4 @@
-package codeforces.`2024-09-20`.b_multiple_construction
+package codeforces.`2025-09-20`.b_multiple_construction
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

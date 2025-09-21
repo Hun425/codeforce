@@ -1,4 +1,4 @@
-package codeforces.`2024-09-20`.b_multiple_construction
+package codeforces.`2025-09-20`.b_multiple_construction
 
 fun main() {
     val t = readln().toInt()

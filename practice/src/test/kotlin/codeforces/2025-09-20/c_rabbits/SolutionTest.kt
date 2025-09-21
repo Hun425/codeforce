@@ -1,4 +1,4 @@
-package codeforces.`2024-09-20`.c_rabbits
+package codeforces.`2025-09-20`.c_rabbits
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
