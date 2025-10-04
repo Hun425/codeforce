@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="codeforces.2025-09-24.c_wrong_binary_search.MainTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-09-23T15:28:08.575Z" hostname="KIHUN" time="0.025">
-  <properties/>
-  <testcase name="문제 예제()" classname="codeforces.2025-09-24.c_wrong_binary_search.MainTest" time="0.025"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

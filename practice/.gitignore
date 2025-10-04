@@ -33,3 +33,8 @@ bin/
 
 .idea
 /.idea/
+
+build
+/build
+.gradle
+gradle
